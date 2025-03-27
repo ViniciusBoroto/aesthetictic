@@ -1,7 +1,8 @@
+@echo off
+echo Instalando dependências...
 pip install fastapi
 pip install pydantic
-pip install sqlalchemy 
+pip install sqlalchemy
 pip install uvicorn
-
-
-uvicorn main:app --host 0.0.0.0 --port 8001 --reload
+echo Dependências instaladas com sucesso!
+pause

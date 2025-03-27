@@ -8,6 +8,9 @@ from schemas.brand_schema import InputCreateBrand
 Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
+def get_app():
+    return app
+
 @app.post("/brand/", tags=["Brand"])
 def create_brand(brand: InputCreateBrand, db: Session = Depends(get_db)):
     return BrandService().create(db, brand)
