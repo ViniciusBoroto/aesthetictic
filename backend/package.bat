@@ -1,2 +1,4 @@
 pip install fastapi
-pip install 
+pip install pydantic
+pip install sqlalchemy 
+pip install uvicorn

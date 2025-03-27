@@ -1,12 +1,18 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
+from sqlalchemy.orm import Session
+from database import engine, Base, get_db
 from services.brand_service import BrandService
+from schemas.brand_schema import BrandCreate
 
+# Criar as tabelas no banco de dados
+Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
-@app.post("/brand/create")
-def create_user(user: UserCreate):
-    return BrandService().create_user(user)
+@app.post("/brand/", tags=["Brand"])
+def create_brand(brand: BrandCreate, db: Session = Depends(get_db)):
+    return BrandService().create(db, brand)
 
-@app.get("/users/{user_id}")
-def get_user(user_id: int):
-    return BrandService().get_user(user_id)
+@app.get("/brand/{brand_id}", tags=["Brand"])
+def get_brand(brand_id: int, db: Session = Depends(get_db)):
+    brand = BrandService().get(db, brand_id)
+    return brand if brand else {"error": "Brand not found"}
