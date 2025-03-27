@@ -198,3 +198,4 @@ chrome-user-data
 .vscode
 *.swp
 *.swo
+**/__pycache__/
