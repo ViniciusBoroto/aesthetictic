@@ -1,5 +1,4 @@
 from pydantic import BaseModel
 
-class BrandCreate(BaseModel):
-    code: str
+class InputCreateBrand(BaseModel):
     name: str
