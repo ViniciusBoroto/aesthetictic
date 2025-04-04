@@ -13,4 +13,5 @@ class Sale(Base):
      price = Column(Numeric(10,2), CheckConstraint("price > 0"),nullable=False)
      quantity = Column(Integer, CheckConstraint("quantity > 0"),nullable=False)
 
-     
+     product_id = Column(Integer, ForeignKey("product", ondelete="CASCADE"), nullable=False)
+     product = relationship("Product", back_populates="sales")

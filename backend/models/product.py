@@ -12,5 +12,8 @@ class Product(Base):
     name = Column(String, nullable=False)
     price = Column(Numeric(10,2), nullable=False)
 
+    product_type_id = Column(Integer, ForeignKey("product_type.id", ondelete="CASCADE"), nullable=False)
+    product_type = relationship("Product_type", back_populates="products")
+
     brand_id = Column(Integer, ForeignKey("brands.id", ondelete="CASCADE"), nullable=False)
     brand = relationship("Brand", back_populates="products")
