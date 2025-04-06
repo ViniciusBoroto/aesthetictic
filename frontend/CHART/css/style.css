@@ -1,0 +1,16 @@
+@import url("https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.css");
+
+/* Centraliza os gráficos e os posiciona lado a lado */
+.charts-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px; /* Espaçamento entre os gráficos */
+    margin-top: 20px;
+}
+
+canvas {
+    max-width: 400px; /* Define um tamanho máximo para os gráficos */
+    max-height: 300px;
+}
+
