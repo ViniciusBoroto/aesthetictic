@@ -1,5 +1,8 @@
+from typing import Dict
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
+import uvicorn
+from algorithms.total_sales import total_sales
 from database import engine, Base, get_db
 from services.brand_service import BrandService
 from schemas.brand_schema import InputCreateBrand
@@ -9,6 +12,7 @@ from services.product_service import ProductService
 from schemas.product_schema import InputCreateProduct
 from services.product_type_service import ProductTypeService
 from schemas.product_type_schema import InputCreateProductType
+
 
 # Criar as tabelas no banco de dados
 Base.metadata.create_all(bind=engine)
@@ -77,3 +81,14 @@ def get_ProductType(db: Session = Depends(get_db)):
     ProductType = ProductTypeService().get_all(db)
     return ProductType
 #endregion
+
+#region TotalSales
+@app.get("/TotalSales/month", tags=["MonthSales"])
+def get_TotalSales_Month(db: Session = Depends(get_db)):
+    sales= SaleService().get_all(db)
+    print(sales)
+    return total_sales(sales)
+
+    
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
