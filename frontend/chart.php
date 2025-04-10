@@ -1,1 +1,0 @@
-//interação entre o banco de dados e os graficos
