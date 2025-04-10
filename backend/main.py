@@ -12,11 +12,19 @@ from services.product_service import ProductService
 from schemas.product_schema import InputCreateProduct
 from services.product_type_service import ProductTypeService
 from schemas.product_type_schema import InputCreateProductType
-
+from fastapi.middleware.cors import CORSMiddleware
 
 # Criar as tabelas no banco de dados
 Base.metadata.create_all(bind=engine)
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Permitir apenas o frontend local
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # region Brand
 @app.post("/brand/", tags=["Brand"])
