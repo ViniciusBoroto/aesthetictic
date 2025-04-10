@@ -10,6 +10,17 @@ class BrandService:
         db.commit()
         db.refresh(create_brand)
         return create_brand.id
+    
+    @staticmethod
+    def create_multiple(db: Session, list_input_create_brand: list[InputCreateBrand]):
+        list_id = []
+        for i in list_input_create_brand:
+            create_brand = Brand(name=i.name)
+            db.add(create_brand)
+            db.commit()
+            db.refresh(create_brand)
+            list_id.append(create_brand.id)
+        return list_id
 
     @staticmethod
     def get(db: Session, id: int):

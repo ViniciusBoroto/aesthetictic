@@ -23,6 +23,10 @@ app = FastAPI()
 def create_brand(brand: InputCreateBrand, db: Session = Depends(get_db)):
     return BrandService().create(db, brand)
 
+@app.post("/brand/Multiple", tags=["Brand"])
+def create_brand(brand: list[InputCreateBrand], db: Session = Depends(get_db)):
+    return BrandService().create_multiple(db, brand)
+
 @app.get("/brand/{brand_id}", tags=["Brand"])
 def get_brand(brand_id: int, db: Session = Depends(get_db)):
     brand = BrandService().get(db, brand_id)
@@ -38,6 +42,10 @@ def get_brand(db: Session = Depends(get_db)):
 @app.post("/sale/", tags=["Sale"])
 def create_Sale(Sale: InputCreateSale, db: Session = Depends(get_db)):
     return SaleService().create(db, Sale)
+
+@app.post("/sale/Multiple", tags=["Sale"])
+def create_Sale_multiple(Sale: list[InputCreateSale], db: Session = Depends(get_db)):
+    return SaleService().create_multiple(db, Sale)
 
 @app.get("/sale/{Sale_id}", tags=["Sale"])
 def get_Sale(Sale_id: int, db: Session = Depends(get_db)):

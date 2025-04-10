@@ -10,6 +10,16 @@ class SaleService:
         db.commit()
         db.refresh(create_sale)
         return create_sale.id
+    
+    def create_multiple(db: Session, input_create_sale: list[InputCreateSale]):
+        listid = []
+        for i in input_create_sale:
+            create_sale = Sale(date_your_sale=i.date_your_sale, price=i.price, quantity=i.quantity, product_id=i.product_id)
+            db.add(create_sale)
+            db.commit()
+            db.refresh(create_sale)
+            listid.append(create_sale.id)
+        return listid
 
     @staticmethod
     def get(db: Session, id: int):
