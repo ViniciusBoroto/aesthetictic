@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from models.sale import Sale
 from schemas.sale_schema import InputCreateSale
 
@@ -27,4 +27,4 @@ class SaleService:
 
     @staticmethod
     def get_all(db: Session):
-        return db.query(Sale).all()
+        return db.query(Sale).options(joinedload(Sale.product)).all()

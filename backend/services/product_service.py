@@ -16,5 +16,9 @@ class ProductService:
         return db.query(Product).filter(Product.id == id).first()
 
     @staticmethod
+    def get_by_type(db: Session, product_type_id: int):
+        return db.query(Product).filter(Product.product_type_id == product_type_id).all()
+
+    @staticmethod
     def get_all(db: Session):
         return db.query(Product).all()

@@ -20,7 +20,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Permitir apenas o frontend local
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -38,7 +38,7 @@ def create_brand(brand: list[InputCreateBrand], db: Session = Depends(get_db)):
 @app.get("/brand/{brand_id}", tags=["Brand"])
 def get_brand(brand_id: int, db: Session = Depends(get_db)):
     brand = BrandService().get(db, brand_id)
-    return brand if brand else {"error": "Brand not found"}
+    return brand
 
 @app.get("/brand/", tags=["Brand"])
 def get_brand(db: Session = Depends(get_db)):
@@ -55,10 +55,10 @@ def create_Sale(Sale: InputCreateSale, db: Session = Depends(get_db)):
 def create_Sale_multiple(Sale: list[InputCreateSale], db: Session = Depends(get_db)):
     return SaleService().create_multiple(db, Sale)
 
-@app.get("/sale/{Sale_id}", tags=["Sale"])
+@app.get("/sale/{sale_id}", tags=["Sale"])
 def get_Sale(Sale_id: int, db: Session = Depends(get_db)):
     Sale = SaleService().get(db, Sale_id)
-    return Sale if Sale else {"error": "Sale not found"}
+    return Sale
 
 @app.get("/sale/", tags=["Sale"])
 def get_Sale(db: Session = Depends(get_db)):
@@ -68,16 +68,22 @@ def get_Sale(db: Session = Depends(get_db)):
 
 # region Product
 @app.post("/Product/", tags=["Product"])
-def create_Product(Product: InputCreateProduct, db: Session = Depends(get_db)):
+def create_product(Product: InputCreateProduct, db: Session = Depends(get_db)):
     return ProductService().create(db, Product)
 
-@app.get("/Product/{Product_id}", tags=["Product"])
-def get_Product(Product_id: int, db: Session = Depends(get_db)):
+@app.get("/Product/{product_id}", tags=["Product"])
+def get_product(Product_id: int, db: Session = Depends(get_db)):
     Product = ProductService().get(db, Product_id)
-    return Product if Product else {"error": "Product not found"}
+    return Product
+
+@app.get("/Product/ByType/{product_type_id}", tags=["Product"])
+def get_product_by_type(product_type_id: int, db: Session = Depends(get_db)):
+    Product = ProductService().get_by_type(db, product_type_id)
+    return Product
+
 
 @app.get("/Product/", tags=["Product"])
-def get_Product(db: Session = Depends(get_db)):
+def get_product(db: Session = Depends(get_db)):
     Product = ProductService().get_all(db)
     return Product
 #endregion
@@ -87,10 +93,10 @@ def get_Product(db: Session = Depends(get_db)):
 def create_ProductType(ProductType: InputCreateProductType, db: Session = Depends(get_db)):
     return ProductTypeService().create(db, ProductType)
 
-@app.get("/ProductType/{ProductType_id}", tags=["ProductType"])
-def get_ProductType(ProductType_id: int, db: Session = Depends(get_db)):
-    ProductType = ProductTypeService().get(db, ProductType_id)
-    return ProductType if ProductType else {"error": "ProductType not found"}
+@app.get("/ProductType/{productType_id}", tags=["ProductType"])
+def get_ProductType(productType_id: int, db: Session = Depends(get_db)):
+    ProductType = ProductTypeService().get(db, productType_id)
+    return ProductType
 
 @app.get("/ProductType/", tags=["ProductType"])
 def get_ProductType(db: Session = Depends(get_db)):
@@ -98,14 +104,17 @@ def get_ProductType(db: Session = Depends(get_db)):
     return ProductType
 #endregion
 
-#region TotalSales
-@app.get("/TotalSales/month", tags=["MonthSales"])
+#region General
+@app.get("/TotalSales/month", tags=["General"])
 def get_TotalSales_Month(db: Session = Depends(get_db)):
     sales= SaleService().get_all(db)
-    print(sales)
     return total_sales(sales)
 
-    
+@app.get("/ProductTypePerformance/", tags=["General"])
+def get_product_type_performance(db: Session = Depends(get_db)):
+    performance = ProductTypeService().get_performance(db)
+    return performance
+#endregion
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
-#endregion
