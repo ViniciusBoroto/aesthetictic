@@ -1,41 +1,33 @@
-1. Executar o Backend
-Passo 1.1: Criar o Ambiente Virtual
-Navegue até a pasta do backend no terminal:
+PASSOS PARA EXECUTAR O PROJETO 
+---------------------------------------------------------------------
+BACKEND
 
-Crie o ambiente virtual:
+1. Criar o Ambiente Virtual
+    Navegue até a pasta backend atráves do terminal (cd backend) e execute: python -m venv venv
+        
+2. Ativar o Ambiente Virtual
+    Windows: venv\Scripts\activate
+    Linux/Mac: source venv/bin/activate
 
-Passo 1.2: Ativar o Ambiente Virtual
-Ative o ambiente virtual:
+3. Instalar Dependências
+    Com o ambiente virtual ativado, execute: pip install -r requirements.txt
 
-Windows:
+4. Iniciar o Backend
+    Execute o servidor com o Uvicorn: uvicorn main:app --reload
 
-Linux/Mac:
+O backend estará disponível em: http://127.0.0.1:8000
+---------------------------------------------------------------------
+FRONTEND
 
-Passo 1.3: Instalar Dependências
-Com o ambiente virtual ativado, instale as dependências:
+1. Instalar Dependências
+    Navegue até a pasta frontend no terminal e execute: pnpm install
 
-Passo 1.4: Iniciar o Backend
-Inicie o servidor do backend com o Uvicorn:
+2. Iniciar o Frontend
+    Execute o servidor de desenvolvimento: pnpm dev
 
-O terminal exibirá o endereço onde o backend está rodando, geralmente http://127.0.0.1:8000.
+O frontend estará disponível em: http://localhost:3000
 
-2. Executar o Frontend
-Passo 2.1: Navegar até a Pasta do Frontend
-Abra um novo terminal e navegue até a pasta do frontend:
+OBS:
 
-Passo 2.2: Instalar Dependências
-Instale as dependências do frontend:
-
-Passo 2.3: Iniciar o Frontend
-Inicie o servidor de desenvolvimento do frontend:
-
-O terminal exibirá o endereço onde o frontend está rodando, geralmente http://localhost:3000.
-
-3. Configurar a Comunicação entre Frontend e Backend
-Certifique-se de que o frontend está configurado para se comunicar com o backend. Verifique se há um arquivo de configuração no frontend (como .env) e ajuste a URL da API, por exemplo:
-
-Se você fizer alterações no arquivo .env, reinicie o servidor do frontend.
-
-4. Visualizar no Navegador
-Acesse o frontend no navegador: http://localhost:3000.
-Certifique-se de que o backend está rodando em http://127.0.0.1:8000 para que os dados sejam carregados corretamente.
+1. O arquivo .venv deve estar configurado corretamente, qualquer erro na execução do backend exclua o a pasta .venv e crie novamente atraves o guia a cima.
+2. Se fizer alterações no arquivo .env, reinicie o servidor do frontend.
