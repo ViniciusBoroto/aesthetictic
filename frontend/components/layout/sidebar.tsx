@@ -4,6 +4,7 @@ import type React from "react"
 
 import { useState } from "react"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import {
   LayoutDashboard,
   BarChart3,
@@ -26,6 +27,7 @@ interface SidebarProps {
 
 export default function Sidebar({ className }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false)
+  const pathname = usePathname()
 
   return (
     <div
@@ -45,18 +47,66 @@ export default function Sidebar({ className }: SidebarProps) {
           </div>
         </div>
         <nav className="flex flex-col space-y-1 px-3">
-          <NavItem href="/" icon={LayoutDashboard} label="Dashboard" collapsed={collapsed} active />
-          <NavItem href="/receitas" icon={BanknoteIcon} label="Receitas" collapsed={collapsed} />
-          <NavItem href="/despesas" icon={CreditCard} label="Despesas" collapsed={collapsed} />
-          <NavItem href="/transacoes" icon={ArrowUpDown} label="Transações" collapsed={collapsed} />
-          <NavItem href="/investimentos" icon={LineChart} label="Investimentos" collapsed={collapsed} />
-          <NavItem href="/orcamento" icon={Wallet} label="Orçamento" collapsed={collapsed} />
-          <NavItem href="/relatorios" icon={BarChart3} label="Relatórios" collapsed={collapsed} />
-          <NavItem href="/previsoes" icon={PieChart} label="Previsões" collapsed={collapsed} />
+          <NavItem href="/" icon={LayoutDashboard} label="Dashboard" collapsed={collapsed} active={pathname === "/"} />
+          <NavItem
+            href="/receitas"
+            icon={BanknoteIcon}
+            label="Receitas"
+            collapsed={collapsed}
+            active={pathname === "/receitas"}
+          />
+          <NavItem
+            href="/despesas"
+            icon={CreditCard}
+            label="Despesas"
+            collapsed={collapsed}
+            active={pathname === "/despesas"}
+          />
+          <NavItem
+            href="/transacoes"
+            icon={ArrowUpDown}
+            label="Transações"
+            collapsed={collapsed}
+            active={pathname === "/transacoes"}
+          />
+          <NavItem
+            href="/investimentos"
+            icon={LineChart}
+            label="Investimentos"
+            collapsed={collapsed}
+            active={pathname === "/investimentos"}
+          />
+          <NavItem
+            href="/orcamento"
+            icon={Wallet}
+            label="Orçamento"
+            collapsed={collapsed}
+            active={pathname === "/orcamento"}
+          />
+          <NavItem
+            href="/relatorios"
+            icon={BarChart3}
+            label="Relatórios"
+            collapsed={collapsed}
+            active={pathname === "/relatorios"}
+          />
+          <NavItem
+            href="/previsoes"
+            icon={PieChart}
+            label="Previsões"
+            collapsed={collapsed}
+            active={pathname === "/previsoes"}
+          />
 
           {!collapsed && <div className="my-2 border-t" />}
 
-          <NavItem href="/configuracoes" icon={Settings} label="Configurações" collapsed={collapsed} />
+          <NavItem
+            href="/configuracoes"
+            icon={Settings}
+            label="Configurações"
+            collapsed={collapsed}
+            active={pathname === "/configuracoes"}
+          />
         </nav>
       </div>
     </div>
