@@ -14,7 +14,6 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
 lib64/
 parts/
 sdist/
@@ -199,3 +198,5 @@ chrome-user-data
 *.swp
 *.swo
 **/__pycache__/
+lib/*
+!frontend/lib/utils.ts
