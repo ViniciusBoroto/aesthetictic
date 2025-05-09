@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowDownIcon, ArrowUpIcon, CreditCard, DollarSign, ShoppingCart, Building, Briefcase } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -8,70 +9,72 @@ interface RecentTransactionsProps {
   className?: string
 }
 
+interface Transaction {
+  id: number
+  description: string
+  amount: string
+  date: string
+  type: "income" | "expense"
+  category: string
+  icon: React.ElementType
+}
+
 export default function RecentTransactions({ className }: RecentTransactionsProps) {
-  // Fictional transaction data
-  const transactions = [
-    {
-      id: 1,
-      description: "Pagamento de Cliente XYZ",
-      amount: "R$ 12.500,00",
-      date: "12/05/2025",
-      type: "income",
-      category: "Vendas",
-      icon: DollarSign,
-    },
-    {
-      id: 2,
-      description: "Aluguel do Escritório",
-      amount: "R$ 3.800,00",
-      date: "10/05/2025",
-      type: "expense",
-      category: "Instalações",
-      icon: Building,
-    },
-    {
-      id: 3,
-      description: "Assinatura Software",
-      amount: "R$ 750,00",
-      date: "08/05/2025",
-      type: "expense",
-      category: "Tecnologia",
-      icon: CreditCard,
-    },
-    {
-      id: 4,
-      description: "Pagamento de Cliente ABC",
-      amount: "R$ 8.300,00",
-      date: "05/05/2025",
-      type: "income",
-      category: "Vendas",
-      icon: DollarSign,
-    },
-    {
-      id: 5,
-      description: "Material de Escritório",
-      amount: "R$ 420,00",
-      date: "03/05/2025",
-      type: "expense",
-      category: "Suprimentos",
-      icon: ShoppingCart,
-    },
-    {
-      id: 6,
-      description: "Consultoria Jurídica",
-      amount: "R$ 1.800,00",
-      date: "01/05/2025",
-      type: "expense",
-      category: "Serviços",
-      icon: Briefcase,
-    },
-  ]
+  const [transactions, setTransactions] = useState<Transaction[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const response = await fetch("http://127.0.0.1:8000/sale")
+        if (!response.ok) {
+          throw new Error("Erro ao buscar transações")
+        }
+        const data = await response.json()
+
+        // Transformar os dados recebidos para o formato esperado
+        const formattedData = data.map((transaction: any) => ({
+          id: transaction.id,
+          description: transaction.product.name, // Nome do produto
+          amount: `R$ ${Number(transaction.price).toFixed(2)}`, // Preço formatado
+          date: new Date(transaction.date_your_sale), // Data como objeto Date
+          type: transaction.price > 0 ? "income" : "expense", // Determina o tipo com base no preço
+          category: "Venda", // Categoria fixa (ajuste conforme necessário)
+          icon: transaction.price > 0 ? DollarSign : ShoppingCart, // Ícone baseado no tipo
+        }))
+
+        // Ordenar as transações pela data (mais recente primeiro)
+        const sortedData = formattedData.sort((a, b) => b.date.getTime() - a.date.getTime())
+
+        // Pegar apenas as últimas 5 transações
+        const latestTransactions = sortedData.slice(0, 5)
+
+        setTransactions(latestTransactions)
+      } catch (err) {
+        console.error(err)
+        setError("Não foi possível carregar as transações")
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchTransactions()
+  }, [])
+
+  if (isLoading) {
+    return <p>Carregando...</p>
+  }
+
+  if (error) {
+    return <p className="text-destructive">{error}</p>
+  }
 
   return (
     <Card className={className}>
       <CardHeader>
         <CardTitle>Transações Recentes</CardTitle>
-        <CardDescription>Últimas 6 transações financeiras</CardDescription>
+        <CardDescription>Últimas transações financeiras</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
@@ -91,7 +94,7 @@ export default function RecentTransactions({ className }: RecentTransactionsProp
                 <div>
                   <p className="text-sm font-medium leading-none">{transaction.description}</p>
                   <p className="text-xs text-muted-foreground">
-                    {transaction.category} • {transaction.date}
+                    {transaction.category} • {transaction.date.toLocaleDateString("pt-BR")}
                   </p>
                 </div>
               </div>
