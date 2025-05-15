@@ -3,7 +3,17 @@
 import type React from "react"
 
 import { useEffect, useState } from "react"
-import { DollarSign, ShoppingCart, Download, Search, ArrowUpDown, ArrowDownIcon, ArrowUpIcon } from "lucide-react"
+import {
+  ChevronLeft,
+  ChevronRight,
+  DollarSign,
+  ShoppingCart,
+  Download,
+  Search,
+  ArrowUpDown,
+  ArrowDownIcon,
+  ArrowUpIcon,
+} from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -32,6 +42,8 @@ export default function TransacoesPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [typeFilter, setTypeFilter] = useState<"all" | "income" | "expense">("all")
   const [sortOrder, setSortOrder] = useState<"newest" | "oldest" | "highest" | "lowest">("newest")
+  const [currentPage, setCurrentPage] = useState(1)
+  const transactionsPerPage = 10
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -107,6 +119,8 @@ export default function TransacoesPage() {
     }
 
     setFilteredTransactions(result)
+    // Resetar para a primeira página quando os filtros mudam
+    setCurrentPage(1)
   }, [transactions, searchTerm, typeFilter, sortOrder])
 
   // Calcular totais
@@ -222,13 +236,21 @@ export default function TransacoesPage() {
             </div>
 
             <TabsContent value="todas">
-              <TransactionsList transactions={filteredTransactions} isLoading={isLoading} error={error} />
+              <TransactionsList
+                transactions={filteredTransactions}
+                isLoading={isLoading}
+                error={error}
+                currentPage={currentPage}
+                setCurrentPage={setCurrentPage}
+              />
             </TabsContent>
             <TabsContent value="receitas">
               <TransactionsList
                 transactions={transactions.filter((t) => t.type === "income")}
                 isLoading={isLoading}
                 error={error}
+                currentPage={currentPage}
+                setCurrentPage={setCurrentPage}
               />
             </TabsContent>
             <TabsContent value="despesas">
@@ -236,6 +258,8 @@ export default function TransacoesPage() {
                 transactions={transactions.filter((t) => t.type === "expense")}
                 isLoading={isLoading}
                 error={error}
+                currentPage={currentPage}
+                setCurrentPage={setCurrentPage}
               />
             </TabsContent>
           </Tabs>
@@ -249,9 +273,45 @@ interface TransactionsListProps {
   transactions: Transaction[]
   isLoading: boolean
   error: string | null
+  currentPage: number
+  setCurrentPage: (page: number) => void
 }
 
-function TransactionsList({ transactions, isLoading, error }: TransactionsListProps) {
+function TransactionsList({ transactions, isLoading, error, currentPage, setCurrentPage }: TransactionsListProps) {
+  const transactionsPerPage = 10
+
+  // Calcular o número total de páginas
+  const totalPages = Math.ceil(transactions.length / transactionsPerPage)
+
+  // Obter as transações da página atual
+  const indexOfLastTransaction = currentPage * transactionsPerPage
+  const indexOfFirstTransaction = indexOfLastTransaction - transactionsPerPage
+  const currentTransactions = transactions.slice(indexOfFirstTransaction, indexOfLastTransaction)
+
+  // Função para mudar de página
+  const paginate = (pageNumber: number) => {
+    if (pageNumber > 0 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber)
+      // Rolar para o topo da lista
+      window.scrollTo({ top: 0, behavior: "smooth" })
+    }
+  }
+
+  // Gerar array de números de página para exibição
+  const pageNumbers = []
+  const maxPageButtons = 5 // Número máximo de botões de página a serem exibidos
+
+  let startPage = Math.max(1, currentPage - Math.floor(maxPageButtons / 2))
+  const endPage = Math.min(totalPages, startPage + maxPageButtons - 1)
+
+  if (endPage - startPage + 1 < maxPageButtons) {
+    startPage = Math.max(1, endPage - maxPageButtons + 1)
+  }
+
+  for (let i = startPage; i <= endPage; i++) {
+    pageNumbers.push(i)
+  }
+
   if (isLoading) {
     return (
       <Card>
@@ -302,7 +362,7 @@ function TransactionsList({ transactions, isLoading, error }: TransactionsListPr
             <div className="text-right">Valor</div>
           </div>
           <div className="divide-y">
-            {transactions.map((transaction) => (
+            {currentTransactions.map((transaction) => (
               <div
                 key={transaction.id}
                 className="grid grid-cols-[1fr_auto] gap-4 p-4 items-center sm:grid-cols-[1fr_1fr_auto_auto]"
@@ -345,6 +405,79 @@ function TransactionsList({ transactions, isLoading, error }: TransactionsListPr
               </div>
             ))}
           </div>
+        </div>
+
+        {/* Paginação */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center space-x-2 mt-6">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => paginate(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="h-8 w-8"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              <span className="sr-only">Página anterior</span>
+            </Button>
+
+            {startPage > 1 && (
+              <>
+                <Button
+                  variant={currentPage === 1 ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => paginate(1)}
+                  className="h-8 w-8"
+                >
+                  1
+                </Button>
+                {startPage > 2 && <span className="text-sm text-muted-foreground">...</span>}
+              </>
+            )}
+
+            {pageNumbers.map((number) => (
+              <Button
+                key={number}
+                variant={currentPage === number ? "default" : "outline"}
+                size="sm"
+                onClick={() => paginate(number)}
+                className="h-8 w-8"
+              >
+                {number}
+              </Button>
+            ))}
+
+            {endPage < totalPages && (
+              <>
+                {endPage < totalPages - 1 && <span className="text-sm text-muted-foreground">...</span>}
+                <Button
+                  variant={currentPage === totalPages ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => paginate(totalPages)}
+                  className="h-8 w-8"
+                >
+                  {totalPages}
+                </Button>
+              </>
+            )}
+
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => paginate(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="h-8 w-8"
+            >
+              <ChevronRight className="h-4 w-4" />
+              <span className="sr-only">Próxima página</span>
+            </Button>
+          </div>
+        )}
+
+        {/* Informações sobre a paginação */}
+        <div className="text-center text-sm text-muted-foreground mt-2">
+          Mostrando {indexOfFirstTransaction + 1}-{Math.min(indexOfLastTransaction, transactions.length)} de{" "}
+          {transactions.length} transações
         </div>
       </CardContent>
     </Card>
