@@ -81,10 +81,19 @@ def get_product_by_type(product_type_id: int, db: Session = Depends(get_db)):
     Product = ProductService().get_by_type(db, product_type_id)
     return Product
 
-
 @app.get("/Product/", tags=["Product"])
 def get_product(db: Session = Depends(get_db)):
     Product = ProductService().get_all(db)
+    return Product
+
+@app.get("/Product/GetProfitValue/{product_id}", tags=["Product"])
+def get_profit_value(Product_id: int, db: Session = Depends(get_db)):
+    Product = ProductService().get_profit_value(db, Product_id)
+    return Product
+
+@app.get("/Product/GerWorstProfitValueByMonth/{month}", tags=["Product"])
+def get_worst_profit_value_by_month(month: int, db: Session = Depends(get_db)):
+    Product = ProductService().get_worst_profit_value_by_month(db, month)
     return Product
 #endregion
 

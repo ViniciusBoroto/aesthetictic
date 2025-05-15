@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session, joinedload
 from models.sale import Sale
 from schemas.sale_schema import InputCreateSale
+from sqlalchemy import extract
 
 class SaleService:
     @staticmethod
@@ -28,3 +29,8 @@ class SaleService:
     @staticmethod
     def get_all(db: Session):
         return db.query(Sale).options(joinedload(Sale.product)).all()
+    
+    @staticmethod
+    def get_by_month(db: Session, month: int):
+        return db.query(Sale).options(joinedload(Sale.product)).filter(extract('month', Sale.date_your_sale) == month).all()
+    

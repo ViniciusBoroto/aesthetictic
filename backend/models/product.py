@@ -8,6 +8,7 @@ class Product(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, nullable=False)
     price = Column(Numeric(10,2), nullable=False)
+    cost_price = Column(Numeric(10,2), nullable=False)
 
     product_type_id = Column(Integer, ForeignKey("product_type.id", ondelete="CASCADE"), nullable=False)
     product_type = relationship("ProductType", back_populates="products")
