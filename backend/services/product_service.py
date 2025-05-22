@@ -2,8 +2,8 @@ from sqlalchemy.orm import Session
 from models.product import Product
 from services.sale_service import SaleService
 from schemas.product_schema import InputCreateProduct
-from schemas.product_schema import ProductWithCostValue
-from typing import Dict
+from schemas.product_schema import ProductWithCostValue, ProductWithCostValueAndProfit
+from typing import Dict, List
 from collections import defaultdict
 from decimal import Decimal
 
@@ -45,15 +45,11 @@ class ProductService:
             profit_value = (i.product.price - i.product.cost_price) * i.quantity
             list_cost_value.append(ProductWithCostValue(profit_value, i.product.id))
         
-        # list_cost_value.sort(key=lambda s: s.profit_value)
         profit_by_product = defaultdict(lambda: Decimal('0.0'))
 
         for item in list_cost_value:
             product_id = item.product_id
             profit_by_product[product_id] += item.profit_value
-
-        # Transformar o resultado em uma lista de tuplas, como no LINQ
-        #result = [(profit, product_id) for product_id, profit in profit_by_product.items()]
 
         list_result = []
         for product_id, profit in profit_by_product.items():
@@ -61,5 +57,63 @@ class ProductService:
             result["ProfitValue"] = profit
             result["ProductId"] = product_id
             list_result.append(result)
+
+        list_result.sort(key=lambda x: x["ProfitValue"], reverse=False)
+
+        return list_result
+    
+    @staticmethod
+    def get_best_profit_value_by_month(db: Session, month: int) -> List[Dict[str, float]]:
+        month_sales = SaleService().get_by_month(db, month)
+        list_cost_value = []
+        
+        for i in month_sales:
+            profit_value = (i.product.price - i.product.cost_price) * i.quantity
+            list_cost_value.append(ProductWithCostValue(profit_value, i.product.id))
+        
+        profit_by_product = defaultdict(lambda: Decimal('0.0'))
+
+        for item in list_cost_value:
+            profit_by_product[item.product_id] += item.profit_value
+
+        list_result = []
+        for product_id, profit in profit_by_product.items():
+            result: Dict[str, float] = {}
+            result["ProfitValue"] = float(profit)
+            result["ProductId"] = product_id
+            list_result.append(result)
+
+        # Ordenar por lucro (decrescente) para retornar os melhores primeiro
+        list_result.sort(key=lambda x: x["ProfitValue"], reverse=True)
+
+        return list_result
+    
+    @staticmethod
+    def get_roi(db: Session):
+        sales = SaleService().get_all(db)
+        list_cost_value = []
+        
+        for i in sales:
+            profit_value = (i.product.price - i.product.cost_price) * i.quantity
+            list_cost_value.append(ProductWithCostValueAndProfit(profit_value, i.product.cost_price, i.product.id))
+        
+        profit_and_cost_by_product = defaultdict(lambda: {'profit': Decimal('0.0'), 'cost': Decimal('0.0')})
+
+        for item in list_cost_value:
+            profit_and_cost_by_product[item.product_id]['profit'] += item.profit_value
+            profit_and_cost_by_product[item.product_id]['cost'] += item.cost_value
+
+        list_result = []
+        for product_id, dict in profit_and_cost_by_product.items():
+            result: Dict[str, float] = {}
+            parsed_profit = float(dict["profit"])
+            parsed_cost = float(dict["cost"])
+            roi = parsed_profit / parsed_cost * 100
+            result["roi"] = float(f"{roi:.2f}")
+            result["productId"] = product_id
+            list_result.append(result)
+
+        # Ordenar por lucro (decrescente) para retornar os melhores primeiro
+        list_result.sort(key=lambda x: x["roi"], reverse=True)
 
         return list_result

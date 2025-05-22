@@ -71,9 +71,15 @@ def get_Sale(db: Session = Depends(get_db)):
 def create_product(Product: InputCreateProduct, db: Session = Depends(get_db)):
     return ProductService().create(db, Product)
 
+# Usar no grafico
+@app.get("/Product/GetROI/", tags=["Product"])
+def get_roi(db: Session = Depends(get_db)):
+    Product = ProductService().get_roi(db)
+    return Product
+
 @app.get("/Product/{product_id}", tags=["Product"])
-def get_product(Product_id: int, db: Session = Depends(get_db)):
-    Product = ProductService().get(db, Product_id)
+def get_product(product_id: int, db: Session = Depends(get_db)):
+    Product = ProductService().get(db, product_id)
     return Product
 
 @app.get("/Product/ByType/{product_type_id}", tags=["Product"])
@@ -91,9 +97,16 @@ def get_profit_value(Product_id: int, db: Session = Depends(get_db)):
     Product = ProductService().get_profit_value(db, Product_id)
     return Product
 
-@app.get("/Product/GerWorstProfitValueByMonth/{month}", tags=["Product"])
+# Usar no grafico
+@app.get("/Product/GetWorstProfitValueByMonth/{month}", tags=["Product"])
 def get_worst_profit_value_by_month(month: int, db: Session = Depends(get_db)):
     Product = ProductService().get_worst_profit_value_by_month(db, month)
+    return Product
+
+# Usar no grafico
+@app.get("/Product/GetBestProfitValueByMonth/{month}", tags=["Product"])
+def get_best_profit_value_by_month(month: int, db: Session = Depends(get_db)):
+    Product = ProductService().get_best_profit_value_by_month(db, month)
     return Product
 #endregion
 
@@ -114,11 +127,13 @@ def get_ProductType(db: Session = Depends(get_db)):
 #endregion
 
 #region General
+# Usar no grafico
 @app.get("/TotalSales/month", tags=["General"])
 def get_TotalSales_Month(db: Session = Depends(get_db)):
     sales= SaleService().get_all(db)
     return total_sales(sales)
 
+# Usar no grafico
 @app.get("/ProductTypePerformance/", tags=["General"])
 def get_product_type_performance(db: Session = Depends(get_db)):
     performance = ProductTypeService().get_performance(db)
