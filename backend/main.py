@@ -5,13 +5,13 @@ import uvicorn
 from algorithms.total_sales import total_sales
 from database import engine, Base, get_db
 from services.brand_service import BrandService
-from schemas.brand_schema import InputCreateBrand
+from schemas.brand_schema import InputCreateBrand, InputUpdateBrand
 from services.sale_service import SaleService
 from schemas.sale_schema import InputCreateSale
 from services.product_service import ProductService
-from schemas.product_schema import InputCreateProduct
+from schemas.product_schema import InputCreateProduct, InputUpdateProduct
 from services.product_type_service import ProductTypeService
-from schemas.product_type_schema import InputCreateProductType
+from schemas.product_type_schema import InputCreateProductType, InputUpdateProductType
 from fastapi.middleware.cors import CORSMiddleware
 
 # Criar as tabelas no banco de dados
@@ -32,12 +32,20 @@ def create_brand(brand: InputCreateBrand, db: Session = Depends(get_db)):
     return BrandService().create(db, brand)
 
 @app.post("/brand/Multiple", tags=["Brand"])
-def create_brand(brand: list[InputCreateBrand], db: Session = Depends(get_db)):
+def create_brand_multiple(brand: list[InputCreateBrand], db: Session = Depends(get_db)):
     return BrandService().create_multiple(db, brand)
 
-@app.get("/brand/{brand_id}", tags=["Brand"])
-def get_brand(brand_id: int, db: Session = Depends(get_db)):
-    brand = BrandService().get(db, brand_id)
+@app.put("/brand/", tags=["Brand"])
+def update_brand(brand: InputUpdateBrand, db: Session = Depends(get_db)):
+    return BrandService().update(db, brand)
+
+@app.delete("/brand/{id}", tags=["Brand"])
+def delete_brand(id: int, db: Session = Depends(get_db)):
+    return BrandService().delete(db, id)
+
+@app.get("/brand/{id}", tags=["Brand"])
+def get_brand(id: int, db: Session = Depends(get_db)):
+    brand = BrandService().get(db, id)
     return brand
 
 @app.get("/brand/", tags=["Brand"])
@@ -77,9 +85,9 @@ def get_roi(db: Session = Depends(get_db)):
     Product = ProductService().get_roi(db)
     return Product
 
-@app.get("/Product/{product_id}", tags=["Product"])
-def get_product(product_id: int, db: Session = Depends(get_db)):
-    Product = ProductService().get(db, product_id)
+@app.get("/Product/{id}", tags=["Product"])
+def get_product(id: int, db: Session = Depends(get_db)):
+    Product = ProductService().get(db, id)
     return Product
 
 @app.get("/Product/ByType/{product_type_id}", tags=["Product"])
@@ -92,9 +100,9 @@ def get_product(db: Session = Depends(get_db)):
     Product = ProductService().get_all(db)
     return Product
 
-@app.get("/Product/GetProfitValue/{product_id}", tags=["Product"])
-def get_profit_value(Product_id: int, db: Session = Depends(get_db)):
-    Product = ProductService().get_profit_value(db, Product_id)
+@app.get("/Product/GetProfitValue/{id}", tags=["Product"])
+def get_profit_value(id: int, db: Session = Depends(get_db)):
+    Product = ProductService().get_profit_value(db, id)
     return Product
 
 # Usar no grafico
@@ -108,6 +116,14 @@ def get_worst_profit_value_by_month(month: int, db: Session = Depends(get_db)):
 def get_best_profit_value_by_month(month: int, db: Session = Depends(get_db)):
     Product = ProductService().get_best_profit_value_by_month(db, month)
     return Product
+
+@app.put("/Product/", tags=["Product"])
+def update_product(product: InputUpdateProduct, db: Session = Depends(get_db)):
+    return ProductService().update(db, product)
+
+@app.delete("/Product/{id}", tags=["Product"])
+def delete_product(id: int, db: Session = Depends(get_db)):
+    return ProductService().delete(db, id)
 #endregion
 
 # region ProductType
@@ -115,15 +131,23 @@ def get_best_profit_value_by_month(month: int, db: Session = Depends(get_db)):
 def create_ProductType(ProductType: InputCreateProductType, db: Session = Depends(get_db)):
     return ProductTypeService().create(db, ProductType)
 
-@app.get("/ProductType/{productType_id}", tags=["ProductType"])
-def get_ProductType(productType_id: int, db: Session = Depends(get_db)):
-    ProductType = ProductTypeService().get(db, productType_id)
+@app.get("/ProductType/{id}", tags=["ProductType"])
+def get_ProductType(id: int, db: Session = Depends(get_db)):
+    ProductType = ProductTypeService().get(db, id)
     return ProductType
 
 @app.get("/ProductType/", tags=["ProductType"])
 def get_ProductType(db: Session = Depends(get_db)):
     ProductType = ProductTypeService().get_all(db)
     return ProductType
+
+@app.put("/ProductType/", tags=["ProductType"])
+def update_producttype(producttype: InputUpdateProductType, db: Session = Depends(get_db)):
+    return ProductTypeService().update(db, producttype)
+
+@app.delete("/ProductType/{id}", tags=["ProductType"])
+def delete_producttype(id: int, db: Session = Depends(get_db)):
+    return ProductTypeService().delete(db, id)
 #endregion
 
 #region General

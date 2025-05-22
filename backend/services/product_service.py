@@ -1,15 +1,32 @@
 from sqlalchemy.orm import Session
 from models.product import Product
 from services.sale_service import SaleService
-from schemas.product_schema import InputCreateProduct
+from services.brand_service import BrandService
+from services.product_type_service import ProductTypeService
+from schemas.product_schema import InputCreateProduct, InputUpdateProduct
 from schemas.product_schema import ProductWithCostValue, ProductWithCostValueAndProfit
 from typing import Dict, List
 from collections import defaultdict
 from decimal import Decimal
+from fastapi import HTTPException, status
 
 class ProductService:
     @staticmethod
     def create(db: Session, input_create_product: InputCreateProduct):
+        related_brand = BrandService().get(db, input_create_product.brand_id)
+        related_product_type = ProductTypeService().get(db, input_create_product.product_type_id)
+
+        if not related_brand:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Marca {input_create_product.brand_id} nao localizada."
+            )
+        if not related_product_type:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Tipo de produto {input_create_product.product_type_id} nao localizado."
+            )
+        
         create_product = Product(price=input_create_product.price, name=input_create_product.name, product_type_id=input_create_product.product_type_id, brand_id=input_create_product.brand_id, cost_price=input_create_product.cost_price)
         db.add(create_product)
         db.commit()
@@ -117,3 +134,49 @@ class ProductService:
         list_result.sort(key=lambda x: x["roi"], reverse=True)
 
         return list_result
+
+    @staticmethod
+    def update(db: Session, input_update_product: InputUpdateProduct):
+        product = ProductService().get(db, input_update_product.id)
+        related_brand = BrandService().get(db, input_update_product.brand_id)
+        related_product_type = ProductTypeService().get(db, input_update_product.product_type_id)
+
+        if not related_brand:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Marca {input_update_product.brand_id} nao localizada."
+            )
+        if not related_product_type:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Tipo de produto {input_update_product.product_type_id} nao localizado."
+            )
+
+        if product:
+            product.name = input_update_product.name
+            product.price = input_update_product.price
+            product.cost_price = input_update_product.cost_price
+            product.product_type_id = input_update_product.product_type_id
+            product.brand_id = input_update_product.brand_id
+            db.commit()
+            db.refresh(product)
+            return product
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Produto {input_update_product.id} nao localizada."
+            )
+
+    @staticmethod
+    def delete(db: Session, id: int):
+        product = ProductService().get(db, id)
+
+        if product:
+            db.delete(product)
+            db.commit()
+            return True
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Produto {id} nao localizada."
+            )

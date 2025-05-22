@@ -1,11 +1,21 @@
 from sqlalchemy.orm import Session, joinedload
 from models.sale import Sale
 from schemas.sale_schema import InputCreateSale
+from models.product import Product
 from sqlalchemy import extract
+from fastapi import HTTPException, status
 
 class SaleService:
     @staticmethod
     def create(db: Session, input_create_sale: InputCreateSale):
+        related_product = db.query(Product).filter(Product.id == input_create_sale.product_id).first()
+
+        if not related_product:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Produto {input_create_sale.product_id} nao localizado."
+            )
+        
         create_sale = Sale(date_your_sale=input_create_sale.date_your_sale, price=input_create_sale.price, quantity=input_create_sale.quantity, product_id=input_create_sale.product_id)
         db.add(create_sale)
         db.commit()
@@ -14,7 +24,15 @@ class SaleService:
     
     def create_multiple(db: Session, input_create_sale: list[InputCreateSale]):
         listid = []
+    
         for i in input_create_sale:
+            related_product = db.query(Product).filter(Product.id == i.product_id).first()
+
+            if not related_product:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=f"Produto {input_create_sale.product_id} nao localizado."
+                )
             create_sale = Sale(date_your_sale=i.date_your_sale, price=i.price, quantity=i.quantity, product_id=i.product_id)
             db.add(create_sale)
             db.commit()

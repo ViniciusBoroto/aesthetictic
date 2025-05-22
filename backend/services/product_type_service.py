@@ -1,10 +1,11 @@
 from sqlalchemy.orm import Session
 from models.product_type import ProductType
-from schemas.product_type_schema import InputCreateProductType
+from schemas.product_type_schema import InputCreateProductType, InputUpdateProductType
 from services.sale_service import SaleService
 from itertools import groupby
 from operator import attrgetter
 from typing import Dict, List
+from fastapi import HTTPException, status
 
 class ProductTypeService:
     @staticmethod
@@ -40,3 +41,32 @@ class ProductTypeService:
         result["Best"] = most_product_type_id
         result["Worse"] = least_product_type_id
         return result
+    
+    @staticmethod
+    def update(db: Session, input_update_producttype: InputUpdateProductType):
+        producttype = ProductTypeService().get(db, input_update_producttype.id)
+
+        if producttype:
+            producttype.name = input_update_producttype.name
+            db.commit()
+            db.refresh(producttype)
+            return producttype
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Tipo Produto {input_update_producttype.id} nao localizada."
+            )
+
+    @staticmethod
+    def delete(db: Session, id: int):
+        producttype = ProductTypeService().get(db, id)
+
+        if producttype:
+            db.delete(producttype)
+            db.commit()
+            return True
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Tipo Produto {id} nao localizada."
+            )

@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from models.brand import Brand
-from schemas.brand_schema import InputCreateBrand
+from schemas.brand_schema import InputCreateBrand, InputUpdateBrand
+from fastapi import HTTPException, status
 
 class BrandService:
     @staticmethod
@@ -21,6 +22,35 @@ class BrandService:
             db.refresh(create_brand)
             list_id.append(create_brand.id)
         return list_id
+
+    @staticmethod
+    def update(db: Session, input_update_brand: InputUpdateBrand):
+        brand = BrandService().get(db, input_update_brand.id)
+
+        if brand:
+            brand.name = input_update_brand.name
+            db.commit()
+            db.refresh(brand)
+            return brand
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Marca {input_update_brand.id} nao localizada."
+            )
+
+    @staticmethod
+    def delete(db: Session, id: int):
+        brand = BrandService().get(db, id)
+
+        if brand:
+            db.delete(brand)
+            db.commit()
+            return True
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Marca {id} nao localizada."
+            )
 
     @staticmethod
     def get(db: Session, id: int):
