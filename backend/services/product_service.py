@@ -34,6 +34,13 @@ class ProductService:
         return create_product.id
 
     @staticmethod
+    def create_multiple(db: Session, input_create_product: list[InputCreateProduct]):
+        for n in input_create_product:
+            ProductService().create(db, n)
+
+        return True
+
+    @staticmethod
     def get(db: Session, id: int):
         return db.query(Product).filter(Product.id == id).first()
 

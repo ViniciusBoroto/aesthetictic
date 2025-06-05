@@ -60,7 +60,7 @@ def create_Sale(Sale: InputCreateSale, db: Session = Depends(get_db)):
     return SaleService().create(db, Sale)
 
 @app.post("/sale/Multiple", tags=["Sale"])
-def create_Sale_multiple(Sale: list[InputCreateSale], db: Session = Depends(get_db)):
+def create_sale_m(Sale: list[InputCreateSale], db: Session = Depends(get_db)):
     return SaleService().create_multiple(db, Sale)
 
 @app.get("/sale/{sale_id}", tags=["Sale"])
@@ -78,6 +78,10 @@ def get_Sale(db: Session = Depends(get_db)):
 @app.post("/Product/", tags=["Product"])
 def create_product(Product: InputCreateProduct, db: Session = Depends(get_db)):
     return ProductService().create(db, Product)
+
+@app.post("/Product/Multiple", tags=["Product"])
+def create_product(Product: list[InputCreateProduct], db: Session = Depends(get_db)):
+    return ProductService().create_multiple(db, Product)
 
 # Usar no grafico
 @app.get("/Product/GetROI/", tags=["Product"])
